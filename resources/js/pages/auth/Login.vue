@@ -1,0 +1,94 @@
+<script setup lang="ts">
+import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AuthBase from '@/layouts/AuthLayout.vue';
+import { store } from '@/routes/login';
+import { Form, Head } from '@inertiajs/vue3';
+import { LoaderCircle } from 'lucide-vue-next';
+
+defineProps<{
+    status?: string;
+    canResetPassword: boolean;
+}>();
+</script>
+
+<template>
+    <AuthBase
+        title="Đăng nhập tài khoản"
+        description="Nhập tài khoản, mật khẩu để vào hệ thống"
+    >
+        <Head title="Log in" />
+
+        <div
+            v-if="status"
+            class="mb-4 text-center text-sm font-medium text-green-600"
+        >
+            {{ status }}
+        </div>
+
+        <Form
+            v-bind="store.form()"
+            :reset-on-success="['password']"
+            v-slot="{ errors, processing }"
+            class="flex flex-col gap-6"
+        >
+            <div class="grid gap-6">
+                <div class="grid gap-2">
+                    <Label for="username">Tài khoản</Label>
+                    <Input
+                        id="username"
+                        type="text"
+                        name="username"
+                        required
+                        autofocus
+                        :tabindex="1"
+                        autocomplete="username"
+                        placeholder="Nhập tài khoản"
+                    />
+                    <InputError :message="errors.username" />
+                </div>
+
+                <div class="grid gap-2">
+                    <div class="flex items-center justify-between">
+                        <Label for="password">Mật khẩu</Label>
+                    </div>
+                    <Input
+                        id="password"
+                        type="password"
+                        name="password"
+                        required
+                        :tabindex="2"
+                        autocomplete="current-password"
+                        placeholder="Password"
+                    />
+                    <InputError :message="errors.password" />
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <Label for="remember" class="flex items-center">
+                        <Checkbox id="remember" name="remember" :tabindex="3" />
+                        <span>Ghi nhớ tài khoản</span>
+                    </Label>
+                </div>
+
+                <Button
+                    type="submit"
+                    class="mt-4 w-full"
+                    :tabindex="4"
+                    :disabled="processing"
+                    data-test="login-button"
+                >
+                    <LoaderCircle
+                        v-if="processing"
+                        class="h-4 w-4 animate-spin"
+                    />
+                    Đăng nhập
+                </Button>
+            </div>
+
+        </Form>
+    </AuthBase>
+</template>
