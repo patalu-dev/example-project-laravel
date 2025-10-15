@@ -22,11 +22,12 @@ const items = [
         icon: LayoutDashboard,
     },
     {
-        title: 'Users',
+        title: 'Admin',
         icon: Users,
         children: [
-            { title: 'List', href: '/' },
-            { title: 'Roles', href: '/' },
+            { title: 'Users', href: '/users' },
+            { title: 'Roles', href: '/roles' },
+            { title: 'Permissions', href: '/permissions' },
         ],
     },
 ];
