@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Illuminate\Validation\Rules;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class UserController extends Controller
 {
@@ -110,7 +111,6 @@ class UserController extends Controller
 
     public function changeStatus(string $id)
     {
-
         $user = User::findOrFail($id);
 
         $user->is_active = !$user->is_active;
@@ -121,12 +121,33 @@ class UserController extends Controller
 
     public function resetPassword(Request $request)
     {
-
         $user = User::findOrFail($request->id);
 
         $user->password = Hash::make('123456');
         $user->save();
 
         return redirect()->back();
+    }
+
+    public function export(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+            $query->orWhere('username', 'like', '%' . $request->keyword . '%');
+            $query->orWhere('email', 'like', '%' . $request->keyword . '%');
+        }
+
+        $users = $query->get(['name', 'username', 'email','created_at']);
+
+        return (new FastExcel($users))->download('users.csv', function ($user) {
+            return [
+                'Name' => $user->name,
+                'Email' => $user->email,
+                'Username' => $user->username,
+                'Created At' => $user->created_at->format('Y-m-d H:i:s'),
+            ];
+        });
     }
 }

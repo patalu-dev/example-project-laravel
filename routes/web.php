@@ -29,6 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/users/{user}/roles', [UserRoleController::class, 'edit'])->name('users.roles.edit');
     Route::put('/users/{user}/roles', [UserRoleController::class, 'update'])->name('users.roles.update');
+
+    Route::get('/export/users', [UserController::class, 'export'])->name('users.export');
 });
 
 Route::get('/roles/{id}/permissions', [RolePermissionController::class, 'edit'])->name('roles.permissions.edit');

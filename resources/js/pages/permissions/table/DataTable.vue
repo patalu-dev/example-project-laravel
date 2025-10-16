@@ -2,7 +2,14 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 
-import { Button } from '@/components/ui/button';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
     Table,
     TableBody,
@@ -12,12 +19,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { router } from '@inertiajs/vue3';
-import {
-    ChevronLeft,
-    ChevronRight,
-    ChevronsLeft,
-    ChevronsRight,
-} from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -138,7 +139,7 @@ const visiblePages = computed(() => {
                                 v-for="cell in row.getVisibleCells()"
                                 :key="cell.id"
                             >
-                                <div class="h-[16px] flex items-center">
+                                <div class="flex h-[16px] items-center">
                                     <FlexRender
                                         :render="cell.column.columnDef.cell"
                                         :props="cell.getContext()"
@@ -162,15 +163,11 @@ const visiblePages = computed(() => {
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex items-center justify-between py-4">
-            <!-- Thông tin pagination -->
+        <!-- <div class="flex items-center justify-between py-4">
             <div class="text-sm text-muted-foreground">
                 {{ paginationInfo }}
             </div>
-
-            <!-- Navigation buttons -->
             <div class="flex items-center space-x-2">
-                <!-- First page -->
                 <Button
                     variant="outline"
                     size="sm"
@@ -180,7 +177,6 @@ const visiblePages = computed(() => {
                     <ChevronsLeft class="h-4 w-4" />
                 </Button>
 
-                <!-- Previous page -->
                 <Button
                     variant="outline"
                     size="sm"
@@ -191,7 +187,6 @@ const visiblePages = computed(() => {
                     Trước
                 </Button>
 
-                <!-- Page numbers -->
                 <div class="flex items-center space-x-1">
                     <Button
                         v-for="page in visiblePages"
@@ -208,7 +203,6 @@ const visiblePages = computed(() => {
                     </Button>
                 </div>
 
-                <!-- Next page -->
                 <Button
                     variant="outline"
                     size="sm"
@@ -222,7 +216,6 @@ const visiblePages = computed(() => {
                     <ChevronRight class="h-4 w-4" />
                 </Button>
 
-                <!-- Last page -->
                 <Button
                     variant="outline"
                     size="sm"
@@ -235,6 +228,50 @@ const visiblePages = computed(() => {
                     <ChevronsRight class="h-4 w-4" />
                 </Button>
             </div>
+        </div> -->
+        <!-- Pagination (shadcn-vue style) -->
+        <div class="flex items-center justify-between py-4">
+            <div class="text-sm text-muted-foreground whitespace-nowrap">
+                {{ paginationInfo }}
+            </div>
+            <Pagination
+                class="justify-end"
+                v-slot="{ page }"
+                :items-per-page="props.pagination.per_page"
+                :total="props.pagination.total"
+                :default-page="props.pagination.current_page"
+                @update:page="goToPage"
+            >
+                <PaginationContent v-slot="{ items }">
+                    <PaginationPrevious
+                        :disabled="props.pagination.current_page <= 1"
+                        @click="goToPreviousPage"
+                    />
+
+                    <template v-for="(item, index) in items" :key="index">
+                        <PaginationItem
+                            v-if="item.type === 'page'"
+                            :value="item.value"
+                            :is-active="
+                                item.value === props.pagination.current_page
+                            "
+                            @click="goToPage(item.value)"
+                        >
+                            {{ item.value }}
+                        </PaginationItem>
+
+                        <PaginationEllipsis v-else :index="index" />
+                    </template>
+
+                    <PaginationNext
+                        :disabled="
+                            props.pagination.current_page >=
+                            props.pagination.last_page
+                        "
+                        @click="goToNextPage"
+                    />
+                </PaginationContent>
+            </Pagination>
         </div>
     </div>
 </template>

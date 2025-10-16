@@ -17,8 +17,11 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
+    FileDown,
+    Loader2,
 } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import LinkButton from '@/components/ui_customs/LinkButton.vue';
 
 const props = defineProps<{
     columns: ColumnDef<TData, TValue>[];
@@ -33,6 +36,8 @@ const props = defineProps<{
         routeName: string;
     };
 }>();
+
+const isDownloading = ref(false);
 
 // Tạo table với server-side pagination
 const table = useVueTable({
@@ -101,6 +106,15 @@ const visiblePages = computed(() => {
 
     return pages;
 });
+
+const downloadFile = async () => {
+    isDownloading.value = true;
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryString = urlParams.toString();
+    const url = route('users.export') + (queryString ? `?${queryString}` : '');
+    window.location.href = url;
+    isDownloading.value = false;
+};
 </script>
 
 <template>
@@ -170,6 +184,19 @@ const visiblePages = computed(() => {
 
             <!-- Navigation buttons -->
             <div class="flex items-center space-x-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    @click="downloadFile"
+                    :disabled="isDownloading"
+                >
+                    <Loader2
+                        v-if="isDownloading"
+                        class="mr-2 h-4 w-4 animate-spin"
+                    />
+                    <FileDown v-else class="h-4 w-4" />
+                    {{ isDownloading ? 'Đang tải...' : '' }}
+                </Button>
                 <!-- First page -->
                 <Button
                     variant="outline"
