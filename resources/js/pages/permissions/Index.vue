@@ -4,12 +4,11 @@ import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui_customs/LoadingSpinner.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Form, Head, useForm } from '@inertiajs/vue3';
+import { Form, Head, useForm, usePage } from '@inertiajs/vue3';
 import { Plus, Search } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 import { columns } from './table/columns';
 import DataTable from './table/DataTable.vue';
-import { usePage } from '@inertiajs/vue3';
 
 const isLoading = ref(false);
 let debounceTimer: any = null;
@@ -77,13 +76,16 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <div class="flex items-center justify-between">
-                <div class="relative w-full max-w-sm items-center">
+            <div
+                class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+            >
+                <!-- Ô tìm kiếm -->
+                <div class="relative w-full items-center md:max-w-sm">
                     <Input
                         id="search"
                         type="text"
                         placeholder="Tìm kiếm..."
-                        class="pl-10"
+                        class="w-full pl-10"
                         v-model="formSearch.keyword"
                     />
                     <span
@@ -92,24 +94,33 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Search class="size-6 text-muted-foreground" />
                     </span>
                 </div>
+
+                <!-- Form thêm role -->
                 <Form
                     action="/permissions"
                     method="post"
                     :resetOnSuccess="['name']"
                     #default="{ processing }"
+                    class="w-full md:flex md:justify-end"
                 >
-                    <div class="flex w-full max-w-sm items-center gap-1.5">
+                    <div class="flex w-full items-center gap-1.5 md:w-[400px]">
                         <Input
                             id="name"
                             name="name"
                             placeholder="Nhập permission"
+                            class="flex-1"
                         />
-                        <Button type="submit" :disabled="processing">
-                            <Plus />Thêm
+                        <Button
+                            type="submit"
+                            :disabled="processing"
+                            class="whitespace-nowrap"
+                        >
+                            <Plus class="mr-1" /> Thêm
                         </Button>
                     </div>
                 </Form>
             </div>
+
             <div class="relative">
                 <Transition name="fade-zoom" mode="out-in">
                     <LoadingSpinner v-if="isLoading" key="loading" />

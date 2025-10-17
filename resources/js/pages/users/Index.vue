@@ -8,9 +8,9 @@ import { Plus, Search } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 // import SearchCard from './components/SearchCard.vue';
 import LoadingSpinner from '@/components/ui_customs/LoadingSpinner.vue';
+import { usePage } from '@inertiajs/vue3';
 import { columns } from './table/columns';
 import DataTable from './table/DataTable.vue';
-import { usePage } from '@inertiajs/vue3';
 
 const isLoading = ref(false);
 let debounceTimer: any = null;
@@ -79,13 +79,16 @@ const breadcrumbs: BreadcrumbItem[] = [
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <!-- <SearchCard :customers="user" @search="search" /> -->
-            <div class="flex items-center justify-between">
-                <div class="relative w-full max-w-sm items-center">
+            <div
+                class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+            >
+                <!-- Ô tìm kiếm -->
+                <div class="relative w-full items-center md:max-w-sm">
                     <Input
                         id="search"
                         type="text"
                         placeholder="Tìm kiếm..."
-                        class="pl-10"
+                        class="w-full pl-10"
                         v-model="formSearch.keyword"
                     />
                     <span
@@ -94,10 +97,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Search class="size-6 text-muted-foreground" />
                     </span>
                 </div>
-                <Link :href="route('users.create')">
-                    <Button> <Plus />Thêm mới </Button>
+
+                <!-- Nút thêm mới -->
+                <Link :href="route('users.create')" class="w-full md:w-auto">
+                    <Button class="w-full md:w-auto">
+                        <Plus class="mr-2" /> Thêm mới
+                    </Button>
                 </Link>
             </div>
+
             <div class="relative">
                 <Transition name="fade-zoom" mode="out-in">
                     <LoadingSpinner v-if="isLoading" key="loading" />
