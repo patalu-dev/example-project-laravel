@@ -119,9 +119,9 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(string $id)
     {
-        $user = User::findOrFail($request->id);
+        $user = User::findOrFail($id);
 
         $user->password = Hash::make('123456');
         $user->save();

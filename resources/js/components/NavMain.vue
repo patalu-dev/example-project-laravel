@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -15,87 +14,106 @@ import CollapsibleTrigger from './ui/collapsible/CollapsibleTrigger.vue';
 import SidebarMenuSub from './ui/sidebar/SidebarMenuSub.vue';
 import SidebarMenuSubItem from './ui/sidebar/SidebarMenuSubItem.vue';
 
+const page = usePage();
+
 const items = [
     {
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutDashboard,
+        permission: 'users.read',
     },
     {
         title: 'Admin',
         icon: Users,
+        permission: 'users.read',
         children: [
-            { title: 'Users', href: '/users' },
-            { title: 'Roles', href: '/roles' },
-            { title: 'Permissions', href: '/permissions' },
+            { title: 'Users', href: '/users', permission: 'users.read', },
+            { title: 'Roles', href: '/roles', permission: 'users.read', },
+            { title: 'Permissions', href: '/permissions', permission: 'users.read', },
         ],
     },
 ];
 
-const page = usePage();
+const hasPermission = (perm: string) => {
+    return page.props.auth.permissions?.includes(perm);
+};
+
 </script>
 
 <template>
-    <SidebarGroup class="px-2 py-0 mt-4">
+    <SidebarGroup class="mt-4 px-2 py-0">
         <SidebarMenu>
             <template v-for="item in items" :key="item.title">
-                <!-- Nếu có submenu -->
-                <Collapsible
-                    v-if="item.children"
-                    class="group/collapsible"
+                <template
+                    v-if="!item.permission || hasPermission(item.permission)"
                 >
-                    <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                            <SidebarMenuButton
-                                class="flex w-full items-center justify-between gap-2"
-                            >
-                                <div class="flex items-center gap-2">
-                                    <component
-                                        :is="item.icon"
-                                        class="h-4 w-4"
-                                    />
-                                    <span>{{ item.title }}</span>
-                                </div>
-
-                                <ChevronDown
-                                    class="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180"
-                                />
-                            </SidebarMenuButton>
-                        </CollapsibleTrigger>
-
-                        <CollapsibleContent>
-                            <SidebarMenuSub>
-                                <SidebarMenuSubItem
-                                    v-for="sub in item.children"
-                                    :key="sub.title"
+                    <!-- Nếu có submenu -->
+                    <Collapsible v-if="item.children" class="group/collapsible">
+                        <SidebarMenuItem>
+                            <CollapsibleTrigger asChild>
+                                <SidebarMenuButton
+                                    class="flex w-full items-center justify-between gap-2"
                                 >
-                                    <Link
-                                        :href="sub.href"
-                                        class="block w-full text-sm pl-2 py-1 hover:bg-gray-100 rounded-sm"
-                                        :class="{
-                                            'text-primary': urlIsActive(
-                                                sub.href,
-                                                page.url,
-                                            ),
-                                        }"
-                                    >
-                                        {{ sub.title }}
-                                    </Link>
-                                </SidebarMenuSubItem>
-                            </SidebarMenuSub>
-                        </CollapsibleContent>
-                    </SidebarMenuItem>
-                </Collapsible>
+                                    <div class="flex items-center gap-2">
+                                        <component
+                                            :is="item.icon"
+                                            class="h-4 w-4"
+                                        />
+                                        <span
+                                            class="truncate text-sm whitespace-nowrap"
+                                            >{{ item.title }}</span
+                                        >
+                                    </div>
 
-                <!-- Nếu không có submenu -->
-                <SidebarMenuItem v-else>
-                    <SidebarMenuButton asChild>
-                        <Link :href="item.href" class="flex items-center gap-2">
-                            <component :is="item.icon" class="h-4 w-4" />
-                            {{ item.title }}
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
+                                    <ChevronDown
+                                        class="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180"
+                                    />
+                                </SidebarMenuButton>
+                            </CollapsibleTrigger>
+
+                            <CollapsibleContent>
+                                <SidebarMenuSub>
+                                    <SidebarMenuSubItem
+                                        v-for="sub in item.children.filter(
+                                            (sub) =>
+                                                !sub.permission ||
+                                                hasPermission(sub.permission),
+                                        )"
+                                        :key="sub.title"
+                                    >
+                                        <Link
+                                            :href="sub.href"
+                                            class="block w-full rounded-sm py-1 pl-2 text-sm hover:bg-gray-100"
+                                            :class="{
+                                                'bg-zinc-100 font-semibold text-primary':
+                                                    urlIsActive(
+                                                        sub.href,
+                                                        page.url,
+                                                    ),
+                                            }"
+                                        >
+                                            {{ sub.title }}
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                            </CollapsibleContent>
+                        </SidebarMenuItem>
+                    </Collapsible>
+
+                    <!-- Nếu không có submenu -->
+                    <SidebarMenuItem v-else>
+                        <SidebarMenuButton asChild>
+                            <Link
+                                :href="item.href"
+                                class="flex items-center gap-2"
+                            >
+                                <component :is="item.icon" class="h-4 w-4" />
+                                {{ item.title }}
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </template>
             </template>
         </SidebarMenu>
     </SidebarGroup>
